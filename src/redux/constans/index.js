@@ -1,1 +1,6 @@
 export const GET_ALL_USER = "GET_ALL_USER";
+
+export const GET_ALL_POSTS_AND_COMMENTS = "GET_ALL_POSTS_AND_COMMENTS";
+export const CREATE_POST = "CREATE_POST";
+export const UPDATE_POST = "UPDATE_POST";
+export const DELETE_POST = "DELETE_POST";
