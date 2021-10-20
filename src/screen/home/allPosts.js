@@ -2,12 +2,15 @@ import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createPost, deletePost, updatePost } from "../../redux/action/post";
 import Post from "../../service/post";
+import Comment from "../../service/comment";
+import { createComment } from "../../redux/action/comment";
 
 export default function AllPosts() {
   const [loading, setLoading] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [editPost, setEditPost] = useState(null);
+  const [loadingComment, setLoadingComment] = useState(false);
   const { user, post } = useSelector((state) => state);
   const dispatch = useDispatch();
   const userId = Number(localStorage.getItem("userId"));
@@ -65,6 +68,20 @@ export default function AllPosts() {
     await Post.deletePost(id);
     dispatch(deletePost(id));
     setLoadingDelete(null);
+  };
+
+  const postComments = async (e, id) => {
+    e.preventDefault();
+    setLoadingComment(id);
+    const { data } = await Comment.createComment({
+      body: e.target.body.value,
+      email: user.users[userId].email,
+      postId: id,
+      name: user.users[userId].name,
+    });
+    document.getElementById(`comment-body-${id}`).value = "";
+    dispatch(createComment(data));
+    setLoadingComment(null);
   };
 
   return (
@@ -173,23 +190,34 @@ export default function AllPosts() {
               {item.comments.length} people commented
             </div>
             <div>
-              {item.comments.map((item2) => (
-                <div key={item2.id} className="text-sm my-2 pl-4">
+              {item.comments.map((item2, index2) => (
+                <div className="text-sm my-2 pl-4" key={index2}>
                   {" "}
                   <span className="font-bold">{item2.name}</span> {item2.body}{" "}
                 </div>
               ))}
               {editPost !== item.id && (
                 <div className="pl-4">
-                  <textarea
-                    className="w-full border-2 border-gray-400 rounded-md p-2"
-                    placeholder={`Want to involve, ${user.users[userId].name} ?`}
-                  />
-                  <div className="flex items-center justify-end">
-                    <button className="py-1 px-2 rounded-md bg-blue-600 text-white">
-                      Send
-                    </button>
-                  </div>
+                  <form onSubmit={(e) => postComments(e, item.id)}>
+                    <input
+                      className="w-full border-2 border-gray-400 rounded-md p-2 mb-2"
+                      placeholder={`Want to involve, ${user.users[userId].name} ?`}
+                      name="body"
+                      id={`comment-body-${item.id}`}
+                    />
+                    <div className="flex items-center justify-end">
+                      {loadingComment !== item.id ? (
+                        <button
+                          className="py-1 px-2 rounded-md bg-blue-600 text-white"
+                          type="submit"
+                        >
+                          Send
+                        </button>
+                      ) : (
+                        <span>Loading...</span>
+                      )}
+                    </div>
+                  </form>
                 </div>
               )}
             </div>

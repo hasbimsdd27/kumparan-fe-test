@@ -3,6 +3,7 @@ import {
   CREATE_POST,
   DELETE_POST,
   UPDATE_POST,
+  CREATE_COMMENT,
 } from "../constans";
 
 const initialState = {
@@ -29,6 +30,21 @@ const reducer = (state = initialState, action) => {
           [action.payload.id]: {
             ...state.posts[action.payload.id],
             ...action.payload,
+          },
+        },
+      };
+
+    case CREATE_COMMENT:
+      return {
+        ...state,
+        posts: {
+          ...state.posts,
+          [action.payload.postId]: {
+            ...state.posts[action.payload.postId],
+            comments: [
+              ...state.posts[action.payload.postId].comments,
+              { ...action.payload },
+            ],
           },
         },
       };
