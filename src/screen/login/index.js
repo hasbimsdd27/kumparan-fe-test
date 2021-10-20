@@ -1,11 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { getAllUser } from "../../redux/action/user";
-import User from "../../service/user";
 
 export default function Index() {
-  const dispatch = useDispatch();
   const history = useHistory();
   const [account, setSelectedAccount] = useState([]);
   const user = useSelector((store) => store.user);
@@ -15,16 +12,6 @@ export default function Index() {
     setError(null);
     setSelectedAccount(user.users[e.target.value]);
   };
-
-  const fetchUsers = useCallback(async () => {
-    dispatch(getAllUser({ isLoading: true }));
-    const { data } = await User.getAllUsers();
-    const usersList = data.reduce((obj, item) => {
-      obj[item.id] = item;
-      return obj;
-    }, {});
-    dispatch(getAllUser({ users: usersList, isLoading: false }));
-  }, [dispatch]);
 
   const handleContinueAccount = (e) => {
     e.preventDefault();
@@ -40,10 +27,8 @@ export default function Index() {
   useEffect(() => {
     if (!!localStorage.getItem("userId")) {
       history.push("/home");
-    } else {
-      fetchUsers();
     }
-  }, [fetchUsers, history]);
+  }, [history]);
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
